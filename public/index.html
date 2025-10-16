@@ -22,10 +22,10 @@
     </section>
 
     <section>
-      <h2>OAuth (Microsoft)</h2>
-      <p>Connect your Outlook account via Microsoft OAuth (Graph)</p>
-      <button id="msLogin">Connect Microsoft</button>
-      <div id="msStatus"></div>
+      <h2>OAuth (Spotify)</h2>
+      <p>Connect via Spotify OAuth (demo)</p>
+      <button id="spotifyLogin">Connect Spotify</button>
+      <div id="spotifyStatus"></div>
     </section>
 
     <section>
@@ -64,7 +64,7 @@
 
   document.getElementById('send').addEventListener('click', sendMail);
   document.getElementById('refresh').addEventListener('click', refresh);
-  document.getElementById('msLogin').addEventListener('click', () => { window.location.href = '/auth/microsoft/login'; });
+  document.getElementById('spotifyLogin').addEventListener('click', () => { window.location.href = '/auth/spotify/login'; });
   refresh();
     </script>
   </body>
