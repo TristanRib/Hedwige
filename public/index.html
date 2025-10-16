@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hedwige Mail App</title>
+    <style>
+      body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; }
+      label { display:block; margin-top: 0.5rem }
+      input, textarea { width:100%; }
+      .message { border:1px solid #ddd; padding:0.5rem; margin:0.5rem 0 }
+    </style>
+  </head>
+  <body>
+    <h1>Hedwige Mail App</h1>
+    <section>
+      <h2>Send email</h2>
+      <label>To<input id="to" /></label>
+      <label>Subject<input id="subject" /></label>
+      <label>Text<textarea id="text"></textarea></label>
+      <button id="send">Send</button>
+      <div id="sendResult"></div>
+    </section>
+
+    <section>
+      <h2>Inbox (recent)</h2>
+      <button id="refresh">Refresh</button>
+      <div id="messages"></div>
+    </section>
+
+    <script>
+      async function sendMail() {
+        const to = document.getElementById('to').value;
+        const subject = document.getElementById('subject').value;
+        const text = document.getElementById('text').value;
+        const res = await fetch('/api/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to, subject, text })
+        });
+        const data = await res.json();
+        document.getElementById('sendResult').textContent = JSON.stringify(data);
+      }
+
+      async function refresh() {
+        const res = await fetch('/api/messages');
+        const data = await res.json();
+        const el = document.getElementById('messages');
+        el.innerHTML = '';
+        if (!data.ok) { el.textContent = data.error || 'Error'; return }
+        for (const m of data.messages) {
+          const d = document.createElement('div');
+          d.className = 'message';
+          d.innerHTML = `<strong>${m.subject || '(no subject)'}</strong><div>From: ${m.from}</div><div>${m.date}</div><pre>${m.text ? m.text.slice(0,500) : ''}</pre>`;
+          el.appendChild(d);
+        }
+      }
+
+      document.getElementById('send').addEventListener('click', sendMail);
+      document.getElementById('refresh').addEventListener('click', refresh);
+      refresh();
+    </script>
+  </body>
+</html>

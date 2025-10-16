@@ -1,0 +1,43 @@
+import 'dotenv/config';
+import express, { Request, Response } from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+import cors from 'cors';
+
+import mailer from './mailer';
+import imapClient from './imapClient';
+
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.post('/api/send', async (req: Request, res: Response) => {
+  const { to, subject, text, html } = req.body;
+  try {
+    const info = await mailer.sendMail({ to, subject, text, html });
+    res.json({ ok: true, info });
+  } catch (err: any) {
+    console.error('send error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.get('/api/messages', async (_req: Request, res: Response) => {
+  try {
+    const messages = await imapClient.fetchRecent();
+    res.json({ ok: true, messages });
+  } catch (err: any) {
+    console.error('fetch error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+if (require.main === module) {
+  app.listen(port, () => console.log(`Server listening on http://localhost:${port}`));
+}
+
+export default app;
